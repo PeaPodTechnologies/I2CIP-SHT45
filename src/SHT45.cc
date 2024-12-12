@@ -56,12 +56,12 @@ void SHT45::loadID() {
   SHT45::_id[idlen] = '\0';
   SHT45::_id_set = true;
 
-  #ifdef WIIPOD_DEBUG_SERIAL
+  #ifdef I2CIP_DEBUG_SERIAL
     DEBUG_DELAY();
-    WIIPOD_DEBUG_SERIAL.print(F("SHT45 ID Loaded: '"));
-    WIIPOD_DEBUG_SERIAL.print(SHT45::_id);
-    WIIPOD_DEBUG_SERIAL.print(F("' @"));
-    WIIPOD_DEBUG_SERIAL.println((uintptr_t)(&SHT45::_id[0]), HEX);
+    I2CIP_DEBUG_SERIAL.print(F("SHT45 ID Loaded: '"));
+    I2CIP_DEBUG_SERIAL.print(SHT45::_id);
+    I2CIP_DEBUG_SERIAL.print(F("' @"));
+    I2CIP_DEBUG_SERIAL.println((uintptr_t)(&SHT45::_id[0]), HEX);
     DEBUG_DELAY();
   #endif
 }
