@@ -1,7 +1,25 @@
-#include <sht45.h>
+#include <SHT45.h>
 
-bool SHT45::_id_set = false;
-char SHT45::_id[I2CIP_ID_SIZE];
+using namespace I2CIP;
+
+I2CIP_DEVICE_INIT_STATIC_ID(SHT45);
+// I2CIP_DEVICES_INIT_PROGMEM_ID(SHT45);
+
+SHT45::SHT45(i2cip_fqa_t fqa, const i2cip_id_t& id) : I2CIP::Device(fqa, id), I2CIP::InputInterface<state_sht45_t, args_sht45_t>((I2CIP::Device*)this) { }
+
+const char* SHT45::cacheToString(void) {
+  memset(this->cache_buffer, 0, I2CIP_INPUT_CACHEBUFFER_SIZE);
+  state_sht45_t value = this->getCache();
+  snprintf(this->cache_buffer, I2CIP_INPUT_CACHEBUFFER_SIZE, "{\"temperature\": %.1f, \"humidity\": %.1f}", value.temperature, value.humidity);
+  return this->cache_buffer;
+}
+
+const char* SHT45::printCache(void) {
+  memset(this->print_buffer, 0, I2CIP_INPUT_PRINTBUFFER_SIZE);
+  state_sht45_t value = this->getCache();
+  snprintf(this->print_buffer, I2CIP_INPUT_PRINTBUFFER_SIZE, "Temperature: %.1f deg C, Humidity: %.1f \%", value.temperature, value.humidity);
+  return this->print_buffer;
+}
 
 static uint8_t crc8(const uint8_t *data, int len) {
   /*
@@ -26,44 +44,6 @@ static uint8_t crc8(const uint8_t *data, int len) {
     }
   }
   return crc;
-}
-
-SHT45::SHT45(const i2cip_fqa_t& fqa, const i2cip_id_t& id) : Device(fqa, id), InputInterface<state_sht45_t, args_sht45_t>((Device*)this) { }
-
-SHT45::SHT45(const i2cip_fqa_t& fqa) : SHT45(fqa, getStaticIDBuffer()) { }
-
-// Handles ID pointer assignment too
-// NEVER returns nullptr, unless out of memory
-Device* SHT45::sht45Factory(const i2cip_fqa_t& fqa) { return sht45Factory(fqa, getStaticIDBuffer()); }
-Device* SHT45::sht45Factory(const i2cip_fqa_t& fqa, const i2cip_id_t& id) {
-  if(!_id_set || id == nullptr) {
-    loadID();
-    return (Device*)(new SHT45(fqa, _id));
-  }
-
-  return (Device*)(new SHT45(fqa, id == nullptr ? _id : id));
-}
-
-void SHT45::loadID() {
-  uint8_t idlen = strlen_P(wiipod_sht45_id_progmem);
-
-  // Read in PROGMEM
-  for (uint8_t k = 0; k < idlen; k++) {
-    char c = pgm_read_byte_near(wiipod_sht45_id_progmem + k);
-    SHT45::_id[k] = c;
-  }
-
-  SHT45::_id[idlen] = '\0';
-  SHT45::_id_set = true;
-
-  #ifdef I2CIP_DEBUG_SERIAL
-    DEBUG_DELAY();
-    I2CIP_DEBUG_SERIAL.print(F("SHT45 ID Loaded: '"));
-    I2CIP_DEBUG_SERIAL.print(SHT45::_id);
-    I2CIP_DEBUG_SERIAL.print(F("' @"));
-    I2CIP_DEBUG_SERIAL.println((uintptr_t)(&SHT45::_id[0]), HEX);
-    DEBUG_DELAY();
-  #endif
 }
 
 i2cip_errorlevel_t SHT45::get(state_sht45_t& value, const args_sht45_t& args) {
@@ -120,12 +100,4 @@ i2cip_errorlevel_t SHT45::get(state_sht45_t& value, const args_sht45_t& args) {
   // #endif
 
   return I2CIP_ERR_NONE;
-}
-
-const args_sht45_t& SHT45::getDefaultA(void) const {
-  return this->default_a;
-}
-
-void SHT45::clearCache(void) {
-  this->setCache(this->default_cache);
 }

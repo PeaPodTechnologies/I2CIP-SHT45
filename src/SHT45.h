@@ -21,10 +21,8 @@
 // #define SHT45_REG_HEATER_BIT        (uint16_t)0x000d  // Status Register Heater Bit
 
 // Settings
-#define SHT45_ADDRESS 0x44 // Default
+#define I2CIP_SHT45_ADDRESS 0x44 // Default
 #define SHT45_DELAY 10 // Write/Read Sensing Delay
-
-using namespace I2CIP;
 
 typedef enum {
   SHT45_HEATER_DISABLE  = 0x00,
@@ -36,37 +34,37 @@ typedef struct {
   float humidity;
 } state_sht45_t;
 
-const char wiipod_sht45_id_progmem[] PROGMEM = {"SHT45"};
+// const char i2cip_sht45_id_progmem[] PROGMEM = {"SHT45"};
 
 // Interface class for the SHT45 air temperature and humidity sensor
-class SHT45 : public Device, public InputInterface<state_sht45_t, args_sht45_t> {
-  private:
-    static bool _id_set;
-    static char _id[];
+class SHT45 : public I2CIP::Device, public I2CIP::InputInterface<state_sht45_t, args_sht45_t> {
+  I2CIP_DEVICE_CLASS_BUNDLE(SHT45);
 
+  // I2CIP_INPUT_USE_TOSTRING(state_sht45_t, "{\"temperature\": %.1f, \"humidity\": %.1f}");
+  // I2CIP_INPUT_ADD_PRINTCACHE(state_sht45_t, "Temperature: %.1f deg C, Humidity: %.1f \%");
+  private:
+    char print_buffer[I2CIP_INPUT_PRINTBUFFER_SIZE];
+    char cache_buffer[I2CIP_INPUT_CACHEBUFFER_SIZE];
+  public:
+    const char* cacheToString(void) override;
+    const char* printCache(void) override;
+  private:
     // Note: unsigned 16-bit args are TRUNCATED to 12-bit PWM control
     const state_sht45_t default_cache = { NAN, NAN };
     const args_sht45_t default_a = SHT45_HEATER_DISABLE;
 
-    SHT45(const i2cip_fqa_t& fqa);
-
-    static void loadID(void);
+    // SHT45(i2cip_fqa_t fqa) : I2CIP::Device(fqa, i2cip_sht45_id_progmem, _id), I2CIP::InputInterface<state_sht45_t, args_sht45_t>((I2CIP::Device*)this) { }
 
     #ifdef MAIN_CLASS_NAME
     friend class MAIN_CLASS_NAME;
     #endif
   public:
-    SHT45(const i2cip_fqa_t& fqa, const i2cip_id_t& id);
-
-    static Device* sht45Factory(const i2cip_fqa_t& fqa, const i2cip_id_t& id);
-    static Device* sht45Factory(const i2cip_fqa_t& fqa);
+    SHT45(i2cip_fqa_t fqa, const i2cip_id_t& id);
     
     i2cip_errorlevel_t get(state_sht45_t& value, const args_sht45_t& args) override;
 
-    const args_sht45_t& getDefaultA(void) const override;
-    void clearCache(void) override;
-
-    static const char* getStaticIDBuffer() { return SHT45::_id_set ? SHT45::_id : nullptr; }
+    const args_sht45_t& getDefaultA(void) const { return this->default_a; }
+    void clearCache(void) { this->setCache(this->default_cache); }
 };
 
 #endif
