@@ -2,8 +2,10 @@
 
 using namespace I2CIP;
 
+#define SHT45_DEFAULT_CACHE { NAN, NAN }
+
 I2CIP_DEVICE_INIT_STATIC_ID(SHT45);
-// I2CIP_DEVICES_INIT_PROGMEM_ID(SHT45);
+I2CIP_INPUT_INIT_RESET(SHT45, state_sht45_t, SHT45_DEFAULT_CACHE, args_sht45_t, SHT45_HEATER_DISABLE);
 
 SHT45::SHT45(i2cip_fqa_t fqa, const i2cip_id_t& id) : I2CIP::Device(fqa, id), I2CIP::InputInterface<state_sht45_t, args_sht45_t>((I2CIP::Device*)this) { }
 

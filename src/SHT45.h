@@ -39,6 +39,7 @@ typedef struct {
 // Interface class for the SHT45 air temperature and humidity sensor
 class SHT45 : public I2CIP::Device, public I2CIP::InputInterface<state_sht45_t, args_sht45_t> {
   I2CIP_DEVICE_CLASS_BUNDLE(SHT45);
+  I2CIP_INPUT_USE_RESET(state_sht45_t, args_sht45_t);
 
   // I2CIP_INPUT_USE_TOSTRING(state_sht45_t, "{\"temperature\": %.1f, \"humidity\": %.1f}");
   // I2CIP_INPUT_ADD_PRINTCACHE(state_sht45_t, "Temperature: %.1f deg C, Humidity: %.1f \%");
@@ -49,9 +50,6 @@ class SHT45 : public I2CIP::Device, public I2CIP::InputInterface<state_sht45_t, 
     const char* cacheToString(void) override;
     const char* printCache(void) override;
   private:
-    // Note: unsigned 16-bit args are TRUNCATED to 12-bit PWM control
-    const state_sht45_t default_cache = { NAN, NAN };
-    const args_sht45_t default_a = SHT45_HEATER_DISABLE;
 
     // SHT45(i2cip_fqa_t fqa) : I2CIP::Device(fqa, i2cip_sht45_id_progmem, _id), I2CIP::InputInterface<state_sht45_t, args_sht45_t>((I2CIP::Device*)this) { }
 
@@ -62,9 +60,6 @@ class SHT45 : public I2CIP::Device, public I2CIP::InputInterface<state_sht45_t, 
     SHT45(i2cip_fqa_t fqa, const i2cip_id_t& id);
     
     i2cip_errorlevel_t get(state_sht45_t& value, const args_sht45_t& args) override;
-
-    const args_sht45_t& getDefaultA(void) const { return this->default_a; }
-    void clearCache(void) { this->setCache(this->default_cache); }
 };
 
 #endif
