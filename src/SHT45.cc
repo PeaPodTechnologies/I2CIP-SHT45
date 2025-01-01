@@ -1,4 +1,6 @@
-#include <SHT45.h>
+#include "SHT45.h"
+
+#include <debug.h>
 
 using namespace I2CIP;
 
