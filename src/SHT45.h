@@ -21,7 +21,8 @@
 // #define SHT45_REG_HEATER_BIT        (uint16_t)0x000d  // Status Register Heater Bit
 
 // Settings
-#define I2CIP_SHT45_ADDRESS 0x44 // Default
+ // 0x44
+#define I2CIP_SHT45_ADDRESS 68
 #define SHT45_DELAY 10 // Write/Read Sensing Delay
 
 typedef enum {

@@ -1,5 +1,9 @@
 #include "SHT45.h"
 
+#ifndef I2CIP_H_
+#error "I2CIP must be in I2CIP-SHT45/libs, or, adjacent to I2CIP-SHT45 together in $PWD/libs"
+#else
+
 // #include <debug.h>
 
 using namespace I2CIP;
@@ -105,3 +109,5 @@ i2cip_errorlevel_t SHT45::get(state_sht45_t& value, const args_sht45_t& args) {
 
   return I2CIP_ERR_NONE;
 }
+
+#endif
