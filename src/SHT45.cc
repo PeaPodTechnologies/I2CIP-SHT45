@@ -13,6 +13,16 @@ using namespace I2CIP;
 I2CIP_DEVICE_INIT_STATIC_ID(SHT45);
 I2CIP_INPUT_INIT_RESET(SHT45, state_sht45_t, SHT45_DEFAULT_CACHE, args_sht45_t, SHT45_HEATER_DISABLE);
 
+void SHT45::parseJSONArgs(I2CIP::i2cip_args_io_t& argsDest, JsonVariant argsA, JsonVariant argsS, JsonVariant argsB) {
+  if(argsA.is<bool>() || argsA.is<int>()) {
+    argsDest.a = new args_sht45_t(argsA.as<int>() > 0 ? SHT45_HEATER_ENABLE : SHT45_HEATER_DISABLE);
+  }
+}
+
+void SHT45::deleteArgs(I2CIP::i2cip_args_io_t& args) {
+  delete (args_sht45_t*)args.a;
+}
+
 SHT45::SHT45(i2cip_fqa_t fqa, const i2cip_id_t& id) : I2CIP::Device(fqa, id), I2CIP::InputInterface<state_sht45_t, args_sht45_t>((I2CIP::Device*)this) { }
 
 const char* SHT45::cacheToString(void) {
